@@ -18,6 +18,7 @@ public class InteractionScript : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Interactible"))
         {
+            Debug.Log(other.gameObject.GetComponent<InteractibleScript>());
             other.gameObject.GetComponent<InteractibleScript>().StartInteraction();
         }
     }
