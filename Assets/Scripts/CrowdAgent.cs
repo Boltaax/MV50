@@ -6,26 +6,59 @@ public class CrowdAgent : MonoBehaviour
 {
     public BehaviorType behavior;
     public Transform player;
-    public Vector2 areaSize = new Vector2(10, 10);
     public float speed = 2f;
     public float changeTargetDelay = 2f;
     public float avoidanceRadius = 1.5f;
     public float repulsionStrength = 3f;
+    public float followMinDistance = 1f;
+    public float fleeDistance = 4f;
+
+    public GameObject zoneDeFoule;
+    public GameObject interactionArrow;
+
     private Vector3 targetPosition;
     private CharacterController controller;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        // Initialise la flèche si elle existe
+        if (interactionArrow != null)
+            interactionArrow.SetActive(false);
+
         if (behavior == BehaviorType.Wander)
             InvokeRepeating(nameof(SetNewTarget), 0f, changeTargetDelay);
     }
 
     void SetNewTarget()
     {
-        float x = Random.Range(-areaSize.x / 2, areaSize.x / 2);
-        float z = Random.Range(-areaSize.y / 2, areaSize.y / 2);
-        targetPosition = new Vector3(x, 1, z);
+        var boxes = zoneDeFoule.GetComponentsInChildren<BoxCollider>();
+        if (boxes == null || boxes.Length == 0) return;
+
+        Vector3 pos = transform.position;
+        int tries = 0;
+
+        do
+        {
+            var bounds = boxes[Random.Range(0, boxes.Length)].bounds;
+            float x = Random.Range(bounds.min.x, bounds.max.x);
+            float z = Random.Range(bounds.min.z, bounds.max.z);
+            pos = new Vector3(x, bounds.center.y, z);
+            tries++;
+        } while (!IsInsideAnyCollider(pos) && tries < 30);
+
+        targetPosition = pos;
+    }
+
+    bool IsInsideAnyCollider(Vector3 point)
+    {
+        foreach (var col in zoneDeFoule.GetComponentsInChildren<BoxCollider>())
+        {
+            if (col.bounds.Contains(point))
+                return true;
+        }
+        return false;
     }
 
     void Update()
@@ -34,22 +67,45 @@ public class CrowdAgent : MonoBehaviour
 
         switch (behavior)
         {
+            case BehaviorType.Idle:
+                return;
+
             case BehaviorType.Wander:
                 direction = (targetPosition - transform.position).normalized;
+                if (Vector3.Distance(transform.position, targetPosition) < 1f)
+                    SetNewTarget();
                 break;
 
             case BehaviorType.FollowPlayer:
                 if (player != null)
-                    direction = (player.position - transform.position).normalized;
+                {
+                    float dist = Vector3.Distance(transform.position, player.position);
+                    if (dist > followMinDistance)
+                        direction = (player.position - transform.position).normalized;
+                }
                 break;
 
             case BehaviorType.FleePlayer:
                 if (player != null)
-                    direction = (transform.position - player.position).normalized;
+                {
+                    float dist = Vector3.Distance(transform.position, player.position);
+                    if (dist < fleeDistance)
+                    {
+                        // Direction opposée + légère variation aléatoire
+                        Vector3 fleeDir = (transform.position - player.position).normalized;
+                        fleeDir = Quaternion.Euler(0, Random.Range(-45f, 45f), 0) * fleeDir;
+                        direction = fleeDir;
+                    }
+                    else
+                    {
+                        // Si trop loin, revient à du Wander
+                        direction = Vector3.zero;
+                    }
+                }
                 break;
         }
 
-        // Récupère les agents proches
+        // Évitement de foule
         Collider[] nearby = Physics.OverlapSphere(transform.position, avoidanceRadius);
         Vector3 repulsion = Vector3.zero;
         int count = 0;
@@ -62,7 +118,7 @@ public class CrowdAgent : MonoBehaviour
                 float dist = away.magnitude;
                 if (dist > 0.01f)
                 {
-                    repulsion += away.normalized / dist; // force inversement proportionnelle à la distance
+                    repulsion += away.normalized / dist;
                     count++;
                 }
             }
@@ -71,20 +127,29 @@ public class CrowdAgent : MonoBehaviour
         if (count > 0)
             repulsion = repulsion.normalized * repulsionStrength;
 
-        // Combine direction et répulsion
         Vector3 move = (direction + repulsion).normalized;
 
-        controller.Move(speed * Time.deltaTime * move);
-
-        if (move.magnitude > 0.1f)
+        // Vérifie si le déplacement reste dans la zone
+        Vector3 proposed = transform.position + move * speed * Time.deltaTime;
+        if (IsInsideAnyCollider(proposed))
         {
-            Vector3 lookDirection = new Vector3(move.x, 0, move.z);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(lookDirection),
-                Time.deltaTime * 5f
-            );
+            controller.Move(move * speed * Time.deltaTime);
+
+            if (move.magnitude > 0.1f)
+            {
+                Vector3 lookDirection = new Vector3(move.x, 0, move.z);
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(lookDirection),
+                    Time.deltaTime * 5f
+                );
+            }
         }
     }
 
+    public void SetInteractable(bool state)
+    {
+        if (interactionArrow != null)
+            interactionArrow.SetActive(state);
+    }
 }
