@@ -53,27 +53,27 @@ public class MenuScript : MonoBehaviour
 
         switch (selectedText)
         {
-            case "Commencer la journée":
+            case "commencer la journée":
                 //GetComponent<ChangeScene>().LoadScene("Foule");//mettre le nom de la scene de la foule
                 Debug.Log("Lance la scene de la foule");
                 DayBegin=true;
                 break;
-            case "Retourner a la maison":
+            case "retourner a la maison":
                 GetComponent<ChangeScene>().LoadScene("HouseHub");//retourne a la scene de la maison
                 DayBegin=false;
                 break;
-            case "Recommencer la scene":
+            case "recommencer la scene":
                 GetComponent<ChangeScene>().LoadScene(currentSceneName);//reload la scene actuelle
                 break;
-            case "Aller Dehors":
+            case "aller dehors":
                 GetComponent<ChangeScene>().LoadScene("Foule");//mettre le nom de la scene de la foule
                 DayBegin=true;
                 break;
-            case "Aller en classe":
+            case "aller en classe":
                 GetComponent<ChangeScene>().LoadScene("SchoolScene");//va direct dans la salle de classe
                 DayBegin=true;
                 break;
-            case "Quitter":
+            case "quitter":
                 Application.Quit();
                 break;
             default:

@@ -34,7 +34,7 @@ public class DoorOpening : MonoBehaviour
         button.SetActive(false);
 
         // Active tous les scripts LookAtPlayer de la scène
-        LookAtPlayer[] lookScripts = FindObjectsOfType<LookAtPlayer>(true); // true = inclut objets inactifs
+        LookAtPlayer[] lookScripts = FindObjectsByType<LookAtPlayer>(FindObjectsSortMode.None); // true = inclut objets inactifs
 
         foreach (LookAtPlayer script in lookScripts)
         {
