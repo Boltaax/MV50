@@ -12,8 +12,11 @@ public class MenuScript : MonoBehaviour
 
     void Start()
     {
-        openMenuAction.action.Enable();
-        openMenuAction.action.performed += OpenMenu;
+        if (openMenuAction != null)
+        {
+            openMenuAction.action.Enable();
+            openMenuAction.action.performed += OpenMenu;
+        }
         currentSceneName = SceneManager.GetActiveScene().name;
         if(PersistantDataScript.instance.dayStarted){
             dropdown.options[0].text="Retourner a la maison";
