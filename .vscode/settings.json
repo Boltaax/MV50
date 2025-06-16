@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "MV50-House-School.sln"
+    "dotnet.defaultSolution": "MV50-prototype - Copie.sln"
 }
