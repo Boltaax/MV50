@@ -8,15 +8,14 @@ public class MenuScript : MonoBehaviour
     public InputActionReference openMenuAction;
     public TMP_Dropdown dropdown;
     private int selectedOption = 0; // Par défaut première option sélectionnée
-    bool DayBegin=false;
-    string currentSceneName;
+    private string currentSceneName;
 
     void Start()
     {
         openMenuAction.action.Enable();
         openMenuAction.action.performed += OpenMenu;
         currentSceneName = SceneManager.GetActiveScene().name;
-        if(DayBegin){
+        if(PersistantDataScript.instance.dayStarted){
             dropdown.options[0].text="Retourner a la maison";
             dropdown.options[1].text="Recommencer la scene";
             dropdown.options[2].text="Quitter";
@@ -32,7 +31,6 @@ public class MenuScript : MonoBehaviour
 
     private void OpenMenu(InputAction.CallbackContext context)
     {
-        Debug.Log("Hello, open menu");
         gameObject.SetActive(!gameObject.activeSelf);
     }
 
@@ -54,24 +52,24 @@ public class MenuScript : MonoBehaviour
         switch (selectedText)
         {
             case "commencer la journée":
+                PersistantDataScript.instance.dayStarted = true;
                 //GetComponent<ChangeScene>().LoadScene("Foule");//mettre le nom de la scene de la foule
                 Debug.Log("Lance la scene de la foule");
-                DayBegin=true;
                 break;
             case "retourner a la maison":
+                PersistantDataScript.instance.dayStarted = false;
                 GetComponent<ChangeScene>().LoadScene("HouseHub");//retourne a la scene de la maison
-                DayBegin=false;
                 break;
             case "recommencer la scene":
                 GetComponent<ChangeScene>().LoadScene(currentSceneName);//reload la scene actuelle
                 break;
             case "aller dehors":
+                PersistantDataScript.instance.dayStarted = true;
                 GetComponent<ChangeScene>().LoadScene("Foule");//mettre le nom de la scene de la foule
-                DayBegin=true;
                 break;
             case "aller en classe":
+                PersistantDataScript.instance.dayStarted = true;
                 GetComponent<ChangeScene>().LoadScene("SchoolScene");//va direct dans la salle de classe
-                DayBegin=true;
                 break;
             case "quitter":
                 Application.Quit();
