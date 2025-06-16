@@ -5,7 +5,9 @@ using UnityEngine.UI;
 public class DoorOpening : MonoBehaviour
 {
     public GameObject button;
-    public AudioSource audio;
+    public AudioSource audioDoor;
+    public AudioSource audioClassroom;
+    public AudioSource audioHeartBeat;
     public Animator animator;
     private bool estOuverte = false;
 
@@ -25,9 +27,13 @@ public class DoorOpening : MonoBehaviour
 
     IEnumerator SequenceAvecAttente()
     {
-        audio.Play();
+        audioDoor.Play();
 
         yield return new WaitForSeconds(4f);
+
+        audioClassroom.Pause();
+
+        audioHeartBeat.Play();
 
         animator.SetBool("Ouvrir/Fermer", true);
 
