@@ -36,6 +36,7 @@ public class CrowdManager : MonoBehaviour
     {
         var settings = difficultyLevels[currentDifficultyIndex];
 
+        int randomAgent = Random.Range(0, settings.agentCount);
         for (int i = 0; i < settings.agentCount; i++)
         {
             Vector3 pos = GetValidPosition();
@@ -48,6 +49,8 @@ public class CrowdManager : MonoBehaviour
             script.changeTargetDelay = settings.changeTargetDelay;
             script.behavior = (BehaviorType)1;
             script.zoneDeFoule = zoneDeFoule;
+            if (randomAgent == i)
+                script.interactionArrow = interactionArrow;
             agents.Add(agent);
         }
     }
@@ -68,5 +71,10 @@ public class CrowdManager : MonoBehaviour
         } while (tries < 10);
 
         return pos;
+    }
+
+    void SetInteractiveAgent(CrowdAgent agent)
+    {
+        agent.interactionArrow = interactionArrow;
     }
 }

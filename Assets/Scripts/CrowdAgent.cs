@@ -30,7 +30,12 @@ public class CrowdAgent : MonoBehaviour
         fixedY = transform.position.y;
 
         if (interactionArrow != null)
-            interactionArrow.SetActive(false);
+        {
+            interactionArrow.SetActive(true);
+            interactionArrow.transform.SetParent(transform); // pour qu’elle suive l’agent
+            interactionArrow.transform.localPosition = new Vector3(0, 2, 0);
+            interactionArrow.transform.localRotation = Quaternion.Euler(90, 0, 0);
+        }
 
         if (behavior == BehaviorType.Wander)
             InvokeRepeating(nameof(SetNewTarget), 0f, changeTargetDelay);
@@ -49,12 +54,13 @@ public class CrowdAgent : MonoBehaviour
 
     bool IsInsideAnyCollider(Vector3 point)
     {
-        foreach (var col in zoneDeFoule.GetComponentsInChildren<BoxCollider>())
+        /*foreach (var col in zoneDeFoule.GetComponentsInChildren<BoxCollider>())
         {
             if (col.bounds.Contains(point))
                 return true;
         }
-        return false;
+        return false;*/
+        return true;
     }
 
     void Update()
@@ -69,7 +75,7 @@ public class CrowdAgent : MonoBehaviour
 
             case BehaviorType.Wander:
                 direction = (targetPosition - transform.position).normalized;
-                if (Vector3.Distance(transform.position, targetPosition) < 1f)
+                if (Vector3.Distance(transform.position, targetPosition) < 0.2f)
                     SetNewTarget();
                 break;
 
@@ -152,11 +158,5 @@ public class CrowdAgent : MonoBehaviour
     {
         if (animator != null)
             animator.SetBool("Walk", walking);
-    }
-
-    public void SetInteractable(bool state)
-    {
-        if (interactionArrow != null)
-            interactionArrow.SetActive(state);
     }
 }

@@ -200,37 +200,8 @@ PrefabInstance:
     - {fileID: -6016672343454887409, guid: 6e74d26130ae895489b5eda7147db0fb, type: 3}
     - {fileID: 507151811852313670, guid: 6e74d26130ae895489b5eda7147db0fb, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: -1085553883326970863, guid: 6e74d26130ae895489b5eda7147db0fb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 62834975}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6e74d26130ae895489b5eda7147db0fb, type: 3}
---- !u!1 &62834974 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -1085553883326970863, guid: 6e74d26130ae895489b5eda7147db0fb, type: 3}
-  m_PrefabInstance: {fileID: 62834973}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &62834975
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 62834974}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 94.33377, y: 96.45092, z: 1.1052852}
-  m_Center: {x: -1.9359155, y: 1.8545156, z: -0.4838649}
 --- !u!1 &407561741
 GameObject:
   m_ObjectHideFlags: 0
@@ -1233,7 +1204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1431616059078545624, guid: 99c93e931ebcf3a46aeec09cdbec2046, type: 3}
       propertyPath: difficultyLevels.Array.data[0].agentCount
-      value: 100
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1431616059078545624, guid: 99c93e931ebcf3a46aeec09cdbec2046, type: 3}
       propertyPath: difficultyLevels.Array.data[0].agentSpeed
@@ -1257,7 +1228,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1431616059078545624, guid: 99c93e931ebcf3a46aeec09cdbec2046, type: 3}
       propertyPath: difficultyLevels.Array.data[0].changeTargetDelay
-      value: 3
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1431616059078545624, guid: 99c93e931ebcf3a46aeec09cdbec2046, type: 3}
       propertyPath: difficultyLevels.Array.data[0].repulsionStrength
