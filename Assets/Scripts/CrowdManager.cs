@@ -6,6 +6,7 @@ public class CrowdManager : MonoBehaviour
     public GameObject agentPrefab;
     public Transform player;
     public GameObject zoneDeFoule;
+    public GameObject interactionArrow;
 
     public List<CrowdDifficulty> difficultyLevels;
     public int currentDifficultyIndex = 0;
@@ -35,40 +36,37 @@ public class CrowdManager : MonoBehaviour
     {
         var settings = difficultyLevels[currentDifficultyIndex];
 
-        int attempts = 0;
-        for (int i = 0; i < settings.agentCount && attempts < settings.agentCount * 5; i++)
+        for (int i = 0; i < settings.agentCount; i++)
         {
-            Vector3 pos = GetRandomPositionInZone();
-            if (!Physics.CheckSphere(pos, settings.spacing))
-            {
-                var agent = Instantiate(agentPrefab, pos, Quaternion.identity);
-                var script = agent.GetComponent<CrowdAgent>();
-                script.player = player;
-                script.speed = settings.agentSpeed;
-                script.repulsionStrength = settings.repulsionStrength;
-                script.avoidanceRadius = settings.avoidanceRadius;
-                script.changeTargetDelay = settings.changeTargetDelay;
-                script.behavior = (BehaviorType)Random.Range(0, 3);
-                script.zoneDeFoule = zoneDeFoule;
-                agents.Add(agent);
-            }
-            else i--; // réessaye une nouvelle position
-            attempts++;
+            Vector3 pos = GetValidPosition();
+            var agent = Instantiate(agentPrefab, pos, Quaternion.Euler(0, Random.Range(0f, 360f), 0));
+            var script = agent.GetComponent<CrowdAgent>();
+            script.player = player;
+            script.speed = settings.agentSpeed;
+            script.repulsionStrength = settings.repulsionStrength;
+            script.avoidanceRadius = settings.avoidanceRadius;
+            script.changeTargetDelay = settings.changeTargetDelay;
+            script.behavior = (BehaviorType)1;
+            script.zoneDeFoule = zoneDeFoule;
+            agents.Add(agent);
         }
     }
 
-    Vector3 GetRandomPositionInZone()
+    Vector3 GetValidPosition()
     {
-        // Choisit une position aléatoire dans les box triggers de la zone
+        Vector3 pos = new Vector3(0, 0, 0);
         var boxes = zoneDeFoule.GetComponentsInChildren<BoxCollider>();
         var box = boxes[Random.Range(0, boxes.Length)];
 
-        Vector3 local = new Vector3(
-            Random.Range(-box.size.x / 2, box.size.x / 2),
-            0f,
-            Random.Range(-box.size.z / 2, box.size.z / 2)
-        );
+        int tries = 0;
+        do
+        {
+            float x = Random.Range(-box.size.x / 2, box.size.x / 2);
+            float z = Random.Range(-box.size.z / 2, box.size.z / 2);
+            pos = new Vector3(box.center.x + x, 0.07f, box.center.z + z);
+            tries++;
+        } while (tries < 10);
 
-        return box.transform.TransformPoint(box.center + local);
+        return pos;
     }
 }

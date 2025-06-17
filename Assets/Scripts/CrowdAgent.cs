@@ -2,6 +2,7 @@ using UnityEngine;
 
 public enum BehaviorType { Idle, Wander, FollowPlayer, FleePlayer }
 
+[RequireComponent(typeof(CharacterController))]
 public class CrowdAgent : MonoBehaviour
 {
     public BehaviorType behavior;
@@ -18,12 +19,16 @@ public class CrowdAgent : MonoBehaviour
 
     private Vector3 targetPosition;
     private CharacterController controller;
+    private Animator animator;
+    private float fixedY; // Y constant
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
 
-        // Initialise la flèche si elle existe
+        fixedY = transform.position.y;
+
         if (interactionArrow != null)
             interactionArrow.SetActive(false);
 
@@ -36,19 +41,10 @@ public class CrowdAgent : MonoBehaviour
         var boxes = zoneDeFoule.GetComponentsInChildren<BoxCollider>();
         if (boxes == null || boxes.Length == 0) return;
 
-        Vector3 pos = transform.position;
-        int tries = 0;
-
-        do
-        {
-            var bounds = boxes[Random.Range(0, boxes.Length)].bounds;
-            float x = Random.Range(bounds.min.x, bounds.max.x);
-            float z = Random.Range(bounds.min.z, bounds.max.z);
-            pos = new Vector3(x, bounds.center.y, z);
-            tries++;
-        } while (!IsInsideAnyCollider(pos) && tries < 30);
-
-        targetPosition = pos;
+        var bounds = boxes[Random.Range(0, boxes.Length)].bounds;
+        float x = Random.Range(bounds.min.x, bounds.max.x);
+        float z = Random.Range(bounds.min.z, bounds.max.z);
+        targetPosition = new Vector3(x, fixedY, z);
     }
 
     bool IsInsideAnyCollider(Vector3 point)
@@ -68,6 +64,7 @@ public class CrowdAgent : MonoBehaviour
         switch (behavior)
         {
             case BehaviorType.Idle:
+                SetWalkAnimation(false);
                 return;
 
             case BehaviorType.Wander:
@@ -91,21 +88,15 @@ public class CrowdAgent : MonoBehaviour
                     float dist = Vector3.Distance(transform.position, player.position);
                     if (dist < fleeDistance)
                     {
-                        // Direction opposée + légère variation aléatoire
                         Vector3 fleeDir = (transform.position - player.position).normalized;
                         fleeDir = Quaternion.Euler(0, Random.Range(-45f, 45f), 0) * fleeDir;
                         direction = fleeDir;
-                    }
-                    else
-                    {
-                        // Si trop loin, revient à du Wander
-                        direction = Vector3.zero;
                     }
                 }
                 break;
         }
 
-        // Évitement de foule
+        // Évitement
         Collider[] nearby = Physics.OverlapSphere(transform.position, avoidanceRadius);
         Vector3 repulsion = Vector3.zero;
         int count = 0;
@@ -129,22 +120,38 @@ public class CrowdAgent : MonoBehaviour
 
         Vector3 move = (direction + repulsion).normalized;
 
-        // Vérifie si le déplacement reste dans la zone
+        // Appliquer déplacement uniquement sur XZ, Y constant
         Vector3 proposed = transform.position + move * speed * Time.deltaTime;
+        proposed.y = fixedY;
+
         if (IsInsideAnyCollider(proposed))
         {
-            controller.Move(move * speed * Time.deltaTime);
+            Vector3 moveDirection = (proposed - transform.position);
+            moveDirection.y = 0;
 
-            if (move.magnitude > 0.1f)
+            if (moveDirection.magnitude > 0.05f)
             {
-                Vector3 lookDirection = new Vector3(move.x, 0, move.z);
-                transform.rotation = Quaternion.Slerp(
-                    transform.rotation,
-                    Quaternion.LookRotation(lookDirection),
-                    Time.deltaTime * 5f
-                );
+                controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(moveDirection), Time.deltaTime * 5f);
+                SetWalkAnimation(true);
+            }
+            else
+            {
+                SetWalkAnimation(false);
             }
         }
+        else
+        {
+            // Hors zone : choisir nouvelle cible
+            SetNewTarget();
+            SetWalkAnimation(false);
+        }
+    }
+
+    void SetWalkAnimation(bool walking)
+    {
+        if (animator != null)
+            animator.SetBool("Walk", walking);
     }
 
     public void SetInteractable(bool state)
