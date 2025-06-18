@@ -27,6 +27,7 @@ public class ChangeScene : MonoBehaviour
         {
             isWaitingForFade = false;
             fadeScript.fadeOut=false;
+            if (targetScene == "HouseHub") PersistantDataScript.instance.dayStarted = false;
             SceneManager.LoadScene(targetScene);
         }
     }

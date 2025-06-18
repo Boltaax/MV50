@@ -24,10 +24,9 @@ public class MenuScript : MonoBehaviour
             dropdown.options[2].text="Quitter";
         }
         else{
-            dropdown.options[0].text="Commencer la journée";
-            dropdown.options[1].text="Aller Dehors";
-            dropdown.options[2].text="Aller en classe";
-            dropdown.options.Add(new TMP_Dropdown.OptionData("Quitter"));
+            dropdown.options[0].text = "Aller dans la foule";
+            dropdown.options[1].text = "Aller en classe";
+            dropdown.options[2].text = "Quitter";
         }
         dropdown.RefreshShownValue();
     }
@@ -66,9 +65,9 @@ public class MenuScript : MonoBehaviour
             case "recommencer la scene":
                 GetComponent<ChangeScene>().LoadScene(currentSceneName);//reload la scene actuelle
                 break;
-            case "aller dehors":
+            case "aller dans la foule":
                 PersistantDataScript.instance.dayStarted = true;
-                GetComponent<ChangeScene>().LoadScene("Foule");//mettre le nom de la scene de la foule
+                GetComponent<ChangeScene>().LoadScene("CrowdScene");//mettre le nom de la scene de la foule
                 break;
             case "aller en classe":
                 PersistantDataScript.instance.dayStarted = true;
